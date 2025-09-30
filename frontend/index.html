@@ -70,7 +70,7 @@
     form.addEventListener("submit", async (e) => {
       e.preventDefault();
       result.textContent = "";
-      submitBtn.disabled = true;
+      submitBtn.disabled = false;
 
       // Build payload from form controls
       const fd = new FormData(form);
@@ -85,7 +85,7 @@
       };
 
       try {
-        const res = await fetch("https://ood.hpc.virginia.edu/rnode/udc-aw32-1c0/37326/proxy/43147/v1/survey", {
+        const res = await fetch("https://ood.hpc.virginia.edu/rnode/udc-aw32-1c1/41059/proxy/44461/v1/survey", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
