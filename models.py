@@ -1,10 +1,6 @@
 from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, Field, EmailStr, validator
-import hashlib
-
-def sha256_hash(value: str) -> str:
-    return hashlib.sha256(value.encode("utf-8")).hexdigest()
 
 class SurveySubmission(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
