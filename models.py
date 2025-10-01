@@ -27,6 +27,3 @@ class SurveySubmission(BaseModel):
 class StoredSurveyRecord(SurveySubmission):
     received_at: datetime
     ip: str
-    email: str
-    age: str
-    submission_id: Optional[str] = None
