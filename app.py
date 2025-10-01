@@ -37,7 +37,7 @@ def submit_survey():
         email_norm = submission.email.lower().strip()
         hour_stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H")
         raw = f"{email_norm}{hour_stamp}"
-        submission_id = sha256(raw.encode()).hexdigest()
+        submission_id = hashlib.sha256(raw.encode()).hexdigest()
         submission.submission_id = submission_id
     else:
         submission_id = submission.submission_id
