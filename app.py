@@ -6,6 +6,9 @@ from models import SurveySubmission, StoredSurveyRecord
 from storage import append_json_line
 import hashlib
 
+def compute_sha256(value:str) -> str:
+    return hashlib.sha256(value.encode()).hexdigest()
+
 app = Flask(__name__)
 # Allow cross-origin requests so the static HTML can POST from localhost or file://
 CORS(app, resources={r"/v1/*": {"origins": "*"}})
@@ -55,9 +58,6 @@ def submit_survey():
     append_json_line(record.dict())
     return jsonify({"status": "ok"}), 201
 
-
-def compute_sha256(value:str) -> str:
-    return hashlib.sha256(value.encode()).hexdigest()
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
