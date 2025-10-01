@@ -47,4 +47,4 @@ def compute_sha256(value:str) -> str:
     return hashlib.sha256(value.encode()).hexdigest()
 
 if __name__ == "__main__":
-    app.run(port=0, debug=True)
+    app.run(port=5000, debug=True)
