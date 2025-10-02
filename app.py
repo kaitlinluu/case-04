@@ -6,12 +6,14 @@ from models import SurveySubmission, StoredSurveyRecord
 from storage import append_json_line
 import hashlib
 
-def compute_sha256(value:str) -> str:
-    return hashlib.sha256(value.encode()).hexdigest()
+def sha256_hash(s: str) -> str:
+    return hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 app = Flask(__name__)
 # Allow cross-origin requests so the static HTML can POST from localhost or file://
 CORS(app, resources={r"/v1/*": {"origins": "*"}})
+
+
 
 @app.route("/ping", methods=["GET"])
 def ping():
@@ -33,31 +35,27 @@ def submit_survey():
     except ValidationError as ve:
         return jsonify({"error": "validation_error", "detail": ve.errors()}), 422
 
-    if not submission.submission_id:
-        email_norm = submission.email.lower().strip()
-        hour_stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H")
-        raw = f"{email_norm}{hour_stamp}"
-        submission_id = hashlib.sha256(raw.encode()).hexdigest()
-        submission.submission_id = submission_id
-    else:
-        submission_id = submission.submission_id
-
+    email_normalized = submission.email.strip().lower()
+    email_hash= sha256_hash(email_normalized)
+    age_hash = sha256_hash(str(submission.age))
+    hour_stamp = datetime.now(timezone.utc).strftime("%Y%m%d%H")
+    submission_id = submission.submission_id or sha256_hash(email_normalized + hour_stamp)
+    
     record = StoredSurveyRecord(
-        **submission.dict(),
+        name=submission.name,
+        email=email_hash,
+        age=age_hash,
+        consent=submission.consent,
+        rating=submission.rating,
+        comments=submission.comments,
+        user_agent=submission.user_agent,
+        submission_id=submission_id,
         received_at=datetime.now(timezone.utc),
         ip=request.headers.get("X-Forwarded-For", request.remote_addr or "")
     )
-
-    raw_email = submission.email
-    record.email = compute_sha256(record.email)
-    record.age = compute_sha256(str(record.age))
-
-    record.submission_id = compute_sha256(raw_email + datetime.now().strftime("%Y%m%d%H"))
-
     append_json_line(record.dict())
     return jsonify({"status": "ok"}), 201
 
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
-
